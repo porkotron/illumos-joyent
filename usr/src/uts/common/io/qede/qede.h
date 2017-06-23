@@ -509,8 +509,6 @@ typedef struct qede_rx_ring {
 	ddi_dma_handle_t	rx_bd_dmah;
 	ddi_dma_handle_t	rx_cqe_dmah;
 	ddi_dma_handle_t	rx_cqe_pbl_dmah;
-	/* From mac_descriptors_get */
-	mac_descriptor_handle_t	rx_mac_desc_hdl;
 	uint32_t	rx_copy_threshold;
 	uint32_t	rx_low_buffer_threshold;
 	struct qede_lro_info lro_info[ETH_TPA_MAX_AGGS_NUM];

@@ -2245,39 +2245,6 @@ err:
 }
 
 static int
-qede_get_mac_rx_descriptors(qede_rx_ring_t *rx_ring)
-{
-	mac_descriptor_handle_t	rx_mac_desc_hdl;
-	qede_t *qede = rx_ring->qede;
-	uint32_t ring_size = qede->rx_ring_size;
-
-	ASSERT(rx_ring != NULL);
-	ASSERT(rx_ring->rx_mac_desc_hdl != NULL);
-
-	/*
-	 * Get the descriptor memory from the MAC layer.
-	 */
-	rx_mac_desc_hdl = mac_descriptors_get(qede->mac_handle,
-	    		rx_ring->mac_ring_handle,
-	    		&ring_size);
-	if (rx_mac_desc_hdl == NULL) {
-		qede_print_err("!%s(%d): FAILURE to alloc rx descriptors",
-		    __func__, qede->instance);
-		return (DDI_FAILURE);
-	} else if (qede->rx_ring_size != ring_size) {
-		qede_print_err("!%s(%d): FAILURE rx-ring size is different, orig %d, new %d",
-		    __func__, qede->instance, qede->rx_ring_size, ring_size);
-		return (DDI_FAILURE);
-	} else {
-		qede_print_err("!%s(%d): SUCCESS allocating %d rx descriptors",
-		    __func__, qede->instance, ring_size);
-	}
-
-	rx_ring->rx_mac_desc_hdl = rx_mac_desc_hdl;
-	return(DDI_SUCCESS);
-}
-
-static int
 qede_alloc_rx_ring_phys(qede_t *qede, qede_fastpath_t *fp)
 {
 	qede_rx_ring_t *rx_ring;
