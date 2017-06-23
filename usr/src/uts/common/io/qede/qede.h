@@ -57,6 +57,7 @@
 #include <sys/pci.h>
 #include <sys/netlb.h>
 #include <sys/strsun.h>
+#include <sys/strsubr.h>
 #include <sys/policy.h>
 
 #include "qede_version.h"
