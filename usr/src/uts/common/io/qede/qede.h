@@ -312,8 +312,10 @@ typedef struct qede_tx_ring {
 	qede_dma_handles_list_t	dmah_list;
 	/* List of recycle entires for tx packets */
 	qede_tx_recycle_list_t	*tx_recycle_list;
-	
+
+#ifdef	DBLK_DMA_PREMAP	
 	pm_handle_t		pm_handle;
+#endif
 	/* dma_handle for tx bd ring */
 	ddi_dma_handle_t	tx_bd_dmah;
 	ddi_dma_handle_t	tx_pbl_dmah;
