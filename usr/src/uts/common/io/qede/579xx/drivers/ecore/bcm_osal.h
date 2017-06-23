@@ -86,7 +86,13 @@ struct ecore_hwfn;
 #define OSAL_MEMSET(_dest_, _val_, _size_) \
 	memset(_dest_, _val_, _size_)
 
-#define	OSAL_SPRINTF	(u32 )sprintf
+/*
+ * The illumos DDI has sprintf returning a pointer to the resulting character
+ * buffer and not the actual length. Therefore we simulate sprintf like the
+ * others do.
+ */
+extern size_t qede_sprintf(char *, const char *, ...);
+#define	OSAL_SPRINTF	qede_sprintf
 #define OSAL_SNPRINTF	(ssize_t)snprintf
 #define	OSAL_STRCMP	strcmp
 
@@ -574,7 +580,7 @@ void qede_debug_after_pf_stop(void *cdev, u8 my_id);
 #define false 0
 #define OSAL_VF_CQE_COMPLETION(_dev_p, _cqe, _protocol) (0)
 #define OSAL_INLINE inline
-#define OSAL_SPRINTF (u32 )sprintf
+#define OSAL_SPRINTF qede_sprintf
 #define OSAL_STRLEN strlen
 #define OSAL_STRCPY strcpy
 #define OSAL_STRNCPY strncpy
