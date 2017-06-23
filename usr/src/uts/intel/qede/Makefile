@@ -17,7 +17,6 @@ UTSBASE = ../..
 
 MODULE		= qede
 OBJECTS		= $(QEDE_OBJS:%=$(OBJS_DIR)/%) $(QEDE_GEN_OBJS:%=$(OBJS_DIR)/%)
-#OBJECTS		= $(QEDE_GEN_OBJS:%=$(OBJS_DIR)/%)
 LINTS		= $(QEDE_OBJS:%.o=$(LINTS_DIR)/%.ln)
 ROOTMODULE	= $(ROOT_DRV_DIR)/$(MODULE)
 CONF_SRCDIR	= $(UTSBASE)/common/io/qede

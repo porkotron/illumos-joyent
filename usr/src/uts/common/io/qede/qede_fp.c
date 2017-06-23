@@ -1079,6 +1079,7 @@ qede_tx_mapped(qede_tx_ring_t *tx_ring, mblk_t *mp, qede_tx_pktinfo_t *pktinfo)
 		 * reserve an handle from the driver dma
 		 * handles list
 		 */
+#ifdef	DBLK_DMA_PREMAP 
 		if (bp->b_datap->db_flags & DBLK_DMA_PREMAP) {
 #ifdef	DEBUG_PREMAP
 			qede_info(tx_ring->qede, "mp is premapped");
@@ -1097,6 +1098,7 @@ qede_tx_mapped(qede_tx_ring_t *tx_ring, mblk_t *mp, qede_tx_pktinfo_t *pktinfo)
 				tx_ring->tx_premap_fail++;
 			}
 		}
+#endif	/* DBLK_DMA_PREMAP */
 
 		if (!is_premapped) {
 			dmah_entry = qede_get_dmah_entry(tx_ring);
