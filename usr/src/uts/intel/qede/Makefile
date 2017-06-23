@@ -40,6 +40,12 @@ CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/hsi/
 CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/hsi/hw
 CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/hsi/mcp
 
+#
+# XXX Temporarily gag this as there are a ton of these in the code base.
+#
+CERRWARN	+= -_gcc=-Wno-unused-variable
+CERRWARN	+= -_gcc=-Wno-unused-label
+
 ALL_TARGET	= $(BINARY) $(CONFMOD)
 LINT_TARGET	= $(MODULE).lint
 INSTALL_TARGET	= $(BINARY) $(ROOTMODULE) $(ROOT_CONFFILE)
