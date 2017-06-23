@@ -87,7 +87,7 @@ struct ecore_hwfn;
 	memset(_dest_, _val_, _size_)
 
 #define	OSAL_SPRINTF	(u32 )sprintf
-#define OSAL_SNPRINTF	snprintf
+#define OSAL_SNPRINTF	(ssize_t)snprintf
 #define	OSAL_STRCMP	strcmp
 
 #define	GFP_KERNEL	KM_SLEEP
