@@ -722,7 +722,9 @@ typedef struct qede {
 	 * used for getting sglist for mbkls
 	 * that were already mapped in mac layer
 	 */
+#ifdef	DBLK_DMA_PREMAP	
 	pm_handle_t			pm_handle;
+#endif
 
 	/* current operating paramters */
 	uint32_t			mtu;
