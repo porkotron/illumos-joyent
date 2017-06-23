@@ -16,8 +16,8 @@
 UTSBASE = ../..
 
 MODULE		= qede
-#OBJECTS		= $(QEDE_OBJS:%=$(OBJS_DIR)/%) $(QEDE_GEN_OBJS:%=$(OBJS_DIR)/%)
-OBJECTS		= $(QEDE_GEN_OBJS:%=$(OBJS_DIR)/%)
+OBJECTS		= $(QEDE_OBJS:%=$(OBJS_DIR)/%) $(QEDE_GEN_OBJS:%=$(OBJS_DIR)/%)
+#OBJECTS		= $(QEDE_GEN_OBJS:%=$(OBJS_DIR)/%)
 LINTS		= $(QEDE_OBJS:%.o=$(LINTS_DIR)/%.ln)
 ROOTMODULE	= $(ROOT_DRV_DIR)/$(MODULE)
 CONF_SRCDIR	= $(UTSBASE)/common/io/qede
@@ -37,6 +37,8 @@ CPPFLAGS	+= -DILLUMOS
 CPPFLAGS	+= -I$(UTSBASE)/common/io/qede
 CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/drivers/ecore
 CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/drivers/ecore/hsi_repository
+CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/hsi/
+CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/hsi/hw
 CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/hsi/mcp
 
 ALL_TARGET	= $(BINARY) $(CONFMOD)
