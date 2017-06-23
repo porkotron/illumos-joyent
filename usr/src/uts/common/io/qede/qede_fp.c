@@ -1640,6 +1640,7 @@ register ub4 initval;	/* the previous hash, or an arbitrary value */
 	return (c);
 }
 
+#ifdef	NO_CROSSBOW
 static uint8_t
 qede_hash_get_txq(qede_t *qede, caddr_t bp)
 {
@@ -1723,6 +1724,7 @@ qede_hash_get_txq(qede_t *qede, caddr_t bp)
 	}
 	return (tx_ring_id);
 }
+#endif
 
 mblk_t *
 qede_ring_tx(void *arg, mblk_t *mp)
