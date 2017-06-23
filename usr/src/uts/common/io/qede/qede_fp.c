@@ -1441,9 +1441,15 @@ do_pullup:
 		qede_print_err("!%s(%d): mp %p id PREMAPPMED",
 		    __func__, qede->instance);
 #endif
+
+#ifdef	DBLK_IS_PREMAPPED
 	if (DBLK_IS_PREMAPPED(mp->b_datap) ||
 	    pktinfo.total_len > qede->tx_bcopy_threshold)
 		xmit_mode = USE_DMA_BIND;
+#else
+	if (pktinfo.total_len > qede->tx_bcopy_threshold)
+		xmit_mode = USE_DMA_BIND;
+#endif
 	
 	if (pktinfo.total_len <= qede->tx_bcopy_threshold)
 		xmit_mode = USE_BCOPY;
