@@ -1,0 +1,122 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+	Version="10.0"
+	VendorName="SlickEdit"
+	WorkingDir="."
+	VCSProject="SCC:Perforce SCM:drv-win-michals-work">
+	<Config
+		Name="Release"
+		OutputFile=""
+		CompilerConfigName="Latest Version">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Build"
+				MenuCaption="&amp;Build"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Rebuild"
+				MenuCaption="&amp;Rebuild"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec CmdLine='"ecore.exe"'/>
+			</Target>
+		</Menu>
+	</Config>
+	<Files>
+		<Folder
+			Name="Source Files"
+			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<F N="tools/e2l.pl"/>
+			<F N="ecore_cxt.c"/>
+			<F N="ecore_dev.c"/>
+			<F N="ecore_fcoe.c"/>
+			<F N="ecore_fw_funcs.c"/>
+			<F N="ecore_hw.c"/>
+			<F N="ecore_init_ops.c"/>
+			<F N="ecore_int.c"/>
+			<F N="ecore_iscsi.c"/>
+			<F N="ecore_ll2.c"/>
+			<F N="ecore_mcp.c"/>
+			<F N="ecore_roce.c"/>
+			<F N="ecore_sp_commands.c"/>
+			<F N="ecore_l2.c"/>
+			<F N="ecore_spq.c"/>
+			<F N="ecore_sriov.c"/>
+			<F N="ecore_vf.c"/>
+		</Folder>
+		<Folder
+			Name="Header Files"
+			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+			<F N="ecore.h"/>
+			<F N="ecore_attn_defs.h"/>
+			<F N="ecore_attn_values.h"/>
+			<F N="ecore_hw.h"/>
+			<F N="ecore_chain.h"/>
+			<F N="ecore_cxt.h"/>
+			<F N="ecore_dev.h"/>
+			<F N="ecore_err.h"/>
+			<F N="ecore_fcoe.h"/>
+			<F N="ecore_fw_funcs.h"/>
+			<F N="ecore_gtt_reg_addr.h"/>
+			<F N="ecore_gtt_values.h"/>
+			<F N="ecore_hsi_common.h"/>
+			<F N="ecore_hsi_eth.h"/>
+			<F N="ecore_hsi_fcoe.h"/>
+			<F N="ecore_hsi_iscsi.h"/>
+			<F N="ecore_hsi_toe.h"/>
+			<F N="ecore_hw_defs.h"/>
+			<F N="ecore_hwif.h"/>
+			<F N="ecore_init_defs.h"/>
+			<F N="ecore_init_ops.h"/>
+			<F N="ecore_init_values.h"/>
+			<F N="ecore_init_values_zipped.h"/>
+			<F N="ecore_int.h"/>
+			<F N="ecore_iro.h"/>
+			<F N="ecore_iro_values.h"/>
+			<F N="ecore_iscsi.h"/>
+			<F N="ecore_ll2.h"/>
+			<F N="ecore_mcp.h"/>
+			<F N="ecore_pcics_reg.h"/>
+			<F N="ecore_proto_if.h"/>
+			<F N="ecore_rt_defs.h"/>
+			<F N="ecore_sp_commands.h"/>
+			<F N="ecore_l2.h"/>
+			<F N="ecore_l2_api.h"/>
+			<F N="ecore_spq.h"/>
+			<F N="ecore_sriov.h"/>
+			<F N="ecore_status.h"/>
+			<F N="ecore_vf.h"/>
+			<F N="ecore_vfpf_if.h"/>
+			<F N="idle_check.sh"/>
+			<F N="../../hsi/hw/reg_addr.h"/>
+			<F N="tools/replace_fw.sh"/>
+		</Folder>
+	</Files>
+</Project>
