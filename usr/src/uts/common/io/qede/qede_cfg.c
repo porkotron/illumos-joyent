@@ -192,12 +192,12 @@ void qede_cfg_init(qede_t *qede)
 	qede_cfg_get_val(qede, "debug_level", &option,
 			 qede->ecore_debug_level,
 			 B_FALSE);
-	qede->ecore_debug_level =  ((uint32_t)option < 0) ? 0 : option;
+	qede->ecore_debug_level =  (uint32_t)((option < 0) ? 0 : option);
 
 	qede_cfg_get_val(qede, "debug_module", &option,
 			qede->ecore_debug_module,
 			B_FALSE);
-	qede->ecore_debug_module = ((uint32_t)option < 0) ? 0 : option;
+	qede->ecore_debug_module = (uint32_t)((option < 0) ? 0 : option);
 }
 
 
