@@ -574,7 +574,9 @@ void qede_debug_after_pf_stop(void *cdev, u8 my_id);
 #define le16_to_cpu(val) 	((val))
 #define cpu_to_le16(val) 	((val))
 #define OSAL_BUILD_BUG_ON(cond) nothing
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(_arr)	(sizeof(_arr) / sizeof((_arr)[0]))
+#endif
 #define BUILD_BUG_ON(cond)	nothing
 #define true 1
 #define false 0
