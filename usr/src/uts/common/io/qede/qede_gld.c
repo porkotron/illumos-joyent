@@ -2002,7 +2002,9 @@ qede_mac_start(void * arg)
 
 	mutex_exit(&qede->drv_lock);
 
+#ifdef	DBLK_DMA_PREMAP
 	qede->pm_handle = mac_pmh_tx_get(qede->mac_handle);
+#endif
 	return (0);
 }
 

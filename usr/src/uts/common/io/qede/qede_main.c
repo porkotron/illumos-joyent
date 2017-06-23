@@ -2873,7 +2873,9 @@ qede_fastpath_config(qede_t *qede)
 			tx_ring->tx_buf_size = qede->tx_buf_size;
 			tx_ring->tx_ring_size = qede->tx_ring_size;
 			tx_ring->queue_started = B_FALSE;
+#ifdef	DBLK_DMA_PREMAP
 			tx_ring->pm_handle = qede->pm_handle;
+#endif
 
 			tx_ring->doorbell_addr =
 			    qede->doorbell;
