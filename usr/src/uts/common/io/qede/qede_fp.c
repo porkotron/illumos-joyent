@@ -1033,7 +1033,7 @@ qede_tx_mapped(qede_tx_ring_t *tx_ring, mblk_t *mp, qede_tx_pktinfo_t *pktinfo)
 	enum qede_xmit_status status = XMIT_FAILED;
 	int ret;
 	qede_dma_handles_list_t *dmah_list = &tx_ring->dmah_list;
-	qede_dma_handle_entry_t *dmah_entry, *head = NULL, *tail = NULL, *hdl;
+	qede_dma_handle_entry_t *dmah_entry = NULL, *head = NULL, *tail = NULL, *hdl;
 	struct eth_tx_1st_bd *first_bd;
 	struct eth_tx_2nd_bd *second_bd;
 	struct eth_tx_3rd_bd *third_bd;
@@ -1172,6 +1172,15 @@ qede_tx_mapped(qede_tx_ring_t *tx_ring, mblk_t *mp, qede_tx_pktinfo_t *pktinfo)
 				ddi_dma_nextcookie(dmah_entry->dma_handle,
 				    &cookie[index]);
 		}
+	}
+
+	/*
+	 * Guard against the case where we get a series of mblks that cause us
+	 * not to end up with any mapped data.
+	 */
+	if (total_cookies == 0) {
+		status = XMIT_FAILED;
+		goto err_map;
 	}
 
 	if (total_cookies > (ETH_TX_MAX_BDS_PER_NON_LSO_PACKET - 1)){
