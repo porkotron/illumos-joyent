@@ -80,7 +80,7 @@
 #include "ecore_mcp.h"
 #include "ecore_dbg_fw_funcs.h"
 #include <sys/pcie.h>
-#include <time.h>
+#include <sys/time.h>
 #else
 #include <ecore.h>
 #include <ecore_status.h>
