@@ -1,0 +1,10 @@
+qede-0.0.0
+{
+    global:
+        _init;
+        _fini;
+        _info;
+
+    local:
+        *;
+};

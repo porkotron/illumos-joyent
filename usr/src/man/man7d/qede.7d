@@ -1,0 +1,178 @@
+<!DOCTYPE REFENTRY PUBLIC "-//Sun Microsystems//DTD DocBook V3.0-Based SolBook Subset V2.0//EN" [
+<!--ArborText, Inc., 1988-1997, v.4001-->
+<!ENTITY % commonents SYSTEM "smancommon.ent">
+%commonents;
+<!ENTITY % booktitles SYSTEM "booktitles.ent">
+%booktitles;
+]>
+
+<refentry id="qede-7d">
+
+<refmeta>
+<refentrytitle>qede</refentrytitle>
+<manvolnum>7D</manvolnum>
+<refmiscinfo class="date">03 January 2012</refmiscinfo>
+<refmiscinfo class="sectdesc">&man7d;</refmiscinfo>
+<refmiscinfo class="software">&release;</refmiscinfo>
+<refmiscinfo class="arch">generic</refmiscinfo>
+<refmiscinfo class="copyright">Copyright (C) 2014 QLogic Corporation. All Rights Reserved</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>qede</refname>
+<refpurpose>QLogic FastLinQ QL45xxx 10/25/40/50/100 Gigabit Ethernet Driver</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<title>&synp-tt;</title>
+<synopsis><literal>/dev/qede*</literal></synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>&desc-tt;</title>
+
+<indexterm significance="normal" id="qede-7d-indx-1">
+<primary sortas="qede">qede &mdash; qede Ethernet device driver</primary>
+</indexterm>
+<indexterm significance="normal" id="qede-7d-indx-2">
+<primary sortas="sunw,qede device driver">qede Ethernet device driver &mdash; qede</primary>
+</indexterm>
+
+<para>
+The <literal>qede</literal> Ethernet driver is a multi-threaded, loadable,
+clonable, GLDv3-based driver supporting the Data Link Provider Interface,
+<olink targetdocent="REFMAN7" localinfo="dlpi-7p"><citerefentry><refentrytitle>dlpi</refentrytitle><manvolnum>7P</manvolnum></citerefentry></olink>,
+over QLogic FastLinQ QL45xxx 10/25/40/50/100 Gigabit Ethernet controllers.  Multiple QLogic 
+FastLinQ controllers installed within the system are supported by the driver.
+</para>
+
+<para>
+The <literal>qede</literal> driver provides support for the QLogic QL45xxx
+line of devices. Functions include chip initialization, frame
+transmit and receive, multicast and promiscuous support, error recovery and
+reporting. These devices provide 10000/25000/40000/50000/100000 Mbps networking
+interfaces.
+</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>DRIVER CONFIGURATION</title>
+
+<para>
+The primary methods of configuration are via modification of the
+<literal>/kernel/drv/qede.conf</literal> file or execution of the
+<olink targetdocent="REFMAN1" localinfo="dladm-1m"><citerefentry><refentrytitle>dladm</refentrytitle><manvolnum>1M</manvolnum></citerefentry></olink>
+utility. There are many configuration items available and all are thoroughly
+documented in the <literal>/kernel/drv/qede.conf</literal> file. Note that for
+changes to this file to take affect the driver must be reloaded or the system
+rebooted. In order to reload the driver with new configuration changes all
+<literal>qede</literal> interfaces must be first unplumbed and then the
+<olink targetdocent="REFMAN1" localinfo="update_drv-1m"><citerefentry><refentrytitle>update_drv</refentrytitle><manvolnum>1M</manvolnum></citerefentry></olink>
+tool must be executed. For the configuration items that do not require a
+driver reload the
+<olink targetdocent="REFMAN1" localinfo="dladm-1m"><citerefentry><refentrytitle>dladm</refentrytitle><manvolnum>1M</manvolnum></citerefentry></olink>
+tool can be used to dynamically change the option.
+</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>DEBUGGING</title>
+
+<refsect2>
+<title>kstat</title>
+<para>
+There are many statistics exposed via <literal>kstat</literal> by
+<literal>qede</literal>.  The main groups are:
+<literal>'intr'</literal> for interrupts stats,
+<literal>'l2chip'</literal> for layer 2 chip stats,
+<literal>'l2driver'</literal> for layer 2 driver stats,
+<literal>'l2stats'</literal> for general layer 2 stats,
+<literal>'link'</literal> for detailed link status,
+<literal>'mac'</literal> for GLDv3 MAC layer stats,
+<literal>'rxq#'</literal> for Rx ring stats,
+<literal>'txq#'</literal> for Tx ring stats, and
+<literal>'stats'</literal> for general driver stats and version info.
+</para>
+<para>
+To get a list of all the individual statistics in these goups run:
+<literallayout>
+% kstat -m qede -i 0 -l
+</literallayout>
+</refsect2>
+
+<refsect2>
+<title>kmdb</title>
+<para>
+There is an MDB module for qede that offers a much deeper level of debugging
+information in comparison to kstat.  Depending on how
+<olink targetdocent="REFMAN1" localinfo="kmdb-1"><citerefentry><refentrytitle>kmdb</refentrytitle><manvolnum>1</manvolnum></citerefentry></olink>
+is initiated the qede module might or might not be automatically loaded.  If
+not then is must be loaded manually.
+<literallayout>
+> ::load /kernel/kmdb/amd64/qede
+> ::help qede
+
+NAME
+  qede - qede driver status
+
+SYNOPSIS
+  [ addr ] ::qede [ -i # ] [ -a | -b | -r | -l | -c # | -f ]
+
+DESCRIPTION
+  addr::  dev_info address ('::devbindings -q qede')
+  -i #    driver instance # (instead of 'addr::')
+  -a      show all (basic, interrupts, all chains)
+  -b      basic status (default)
+  -r      interrupt status
+  -l      mutex locks status
+  -c #    status for chain # (-1 for all chains)
+</literallayout>
+</para>
+</refsect2>
+
+</refsect1>
+
+<refsect1>
+
+<title>&file-tt;</title>
+
+<variablelist termlength="medium">
+<varlistentry><term><filename>/dev/qede[instance]</filename></term><listitem><para><literal>qede</literal> Character special device</para></listitem></varlistentry>
+<varlistentry><term><filename>/kernel/drv/qede.conf</filename></term><listitem><para>Driver configuration file.</para></listitem></varlistentry>
+<varlistentry><term><filename>/kernel/drv/qede</filename></term><listitem><para>32-bit i386 driver binary.</para></listitem></varlistentry>
+<varlistentry><term><filename>/kernel/drv/amd64/qede</filename></term><listitem><para>64-bit i386 driver binary.</para></listitem></varlistentry>
+<varlistentry><term><filename>/kernel/drv/sparcv9/qede</filename></term><listitem><para>SPARC driver binary.</para></listitem></varlistentry>
+<varlistentry><term><filename>/kernel/kmdb/qede</filename></term><listitem><para>32-bit i386 debugger module.</para></listitem></varlistentry>
+<varlistentry><term><filename>/kernel/kmdb/amd64/qede</filename></term><listitem><para>64-bit i386 debugger module.</para></listitem></varlistentry>
+<varlistentry><term><filename>/kernel/kmdb/sparcv9/qede</filename></term><listitem><para>SPARC debugger module.</para></listitem></varlistentry>
+<varlistentry><term><filename>release.txt</filename></term><listitem><para>Revision history of the driver.</para></listitem></varlistentry>
+<varlistentry><term><filename>readme.txt</filename></term><listitem><para>README guide for the driver.</para></listitem></varlistentry>
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>&also-tt;</title>
+
+<para>
+<olink targetdocent="REFMAN1M" localinfo="dladm-1m"><citerefentry><refentrytitle>dladm</refentrytitle><manvolnum>1M</manvolnum></citerefentry></olink>,
+<olink targetdocent="REFMAN1M" localinfo="netstat-1m"><citerefentry><refentrytitle>netstat</refentrytitle><manvolnum>1M</manvolnum></citerefentry></olink>,
+<olink targetdocent="REFMAN1M" localinfo="ifconfig-1m"><citerefentry><refentrytitle>ifconfig</refentrytitle><manvolnum>1M</manvolnum></citerefentry></olink>,
+<olink targetdocent="REFMAN4" localinfo="driver.conf-4"><citerefentry><refentrytitle>driver.conf</refentrytitle><manvolnum>4</manvolnum></citerefentry></olink>,
+<olink targetdocent="REFMAN7" localinfo="gld-7p"><citerefentry><refentrytitle>gld</refentrytitle><manvolnum>7P</manvolnum></citerefentry></olink>,
+<olink targetdocent="REFMAN7" localinfo="brcmdcbxinfo-7d"><citerefentry><refentrytitle>brcmdcbxinfo</refentrytitle><manvolnum>7D</manvolnum></citerefentry></olink>
+</para>
+<para><citetitle>QLogic QL45xxx 10/25/40/50/100 Gigabit Adapter Driver Installation Notes</citetitle></para>
+<para><citetitle>Writing Device Drivers</citetitle></para>
+<para><citetitle>STREAMS Programming Guide</citetitle></para>
+<para><citetitle>Network Interfaces Guide</citetitle></para>
+</refsect1>
+
+</refentry>
+

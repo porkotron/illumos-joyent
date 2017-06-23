@@ -1,0 +1,29 @@
+From Directory 579xx/drivers/ecore :
+
+core
+ecore.vcxproj
+ecore_chain.c
+ecore_dbg_values.bin
+ecore_fcoe.c
+ecore_hsi_eth.h
+ecore_hsi_iwarp.h
+ecore_iscsi.c
+ecore_ll2.c
+ecore_mng_tlv.c
+ecore_ooo.c
+ecore_ptp.c
+ecore_ptp.h
+ecore_roce.c
+ecore_self_test.c
+ecore_sriov.c
+ecore_tcp_ip.h
+ecore_user_dbg_fw_funcs.c
+ecore_vf.c
+
+From Directory 579xx/drivers/ecore/hsi_repository :
+drv_fcoe_fw_funcs.c
+drv_fcoe_fw_funcs.h
+drv_iscsi_fw_funcs.c
+drv_iscsi_fw_funcs.h
+drv_scsi_fw_funcs.c
+drv_scsi_fw_funcs.h
