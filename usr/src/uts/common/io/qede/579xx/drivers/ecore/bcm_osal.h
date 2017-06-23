@@ -420,7 +420,6 @@ typedef u64 osal_int_ptr_t;
 	    _tmp_ = qede_list_next_entry(_entry_, _type_, _member_); \
 	    &_entry_->_member_ != (_head_); \
 	    _entry_ = _tmp_, _tmp_ = qede_list_next_entry(_tmp_, _type_, _member_))
-		//_type_, _member_) \
 
 #define	OSAL_LIST_FOR_EACH_ENTRY_SAFE(_entry_, _tmp_, _list_, \
 		_member_, _type_) \
