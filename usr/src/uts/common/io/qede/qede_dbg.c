@@ -70,7 +70,6 @@ qede_dbg_ipv6_ext_hdr(qede_tx_pktinfo_t *pktinfo, mblk_t *mp)
 	struct ether_header *eth_hdr = (struct ether_header *)(void *)mp->b_rptr;
 	ipha_t *ip_hdr;
 	struct ip6_hdr *ipv6hdr = NULL;
-	struct tcphdr *tcp_hdr;
 
 	/* mac header type and len */
 	if (ntohs(eth_hdr->ether_type) == ETHERTYPE_IP) {
@@ -280,7 +279,6 @@ qede_print_qede(qede_t *qede)
  */
 void qede_debug_before_pf_start(struct ecore_dev *edev, u8 id)
 {
-	int i = 0, timeout = 1000 * 10 * 3;
 }
 
 void qede_debug_after_pf_stop(void *cdev, u8 my_id)
@@ -298,7 +296,7 @@ void qede_dump_reg_cqe(struct eth_fast_path_rx_reg_cqe *cqe)
 	cmn_err(CE_WARN, "    vlan_tag = %d", LE_16(cqe->vlan_tag));
 	cmn_err(CE_WARN, "    rss_hash = %d", LE_32(cqe->rss_hash));
 	cmn_err(CE_WARN, "    pars_flags = %x", LE_16((uint16_t)cqe->pars_flags.flags));
-	cmn_err(CE_WARN, "    tunnel_pars_flags = %x", cqe->tunnel_pars_flags);
+	cmn_err(CE_WARN, "    tunnel_pars_flags = %x", cqe->tunnel_pars_flags.flags);
 	cmn_err(CE_WARN, "    bitfields = %x", cqe->bitfields);
 }
 
@@ -316,7 +314,7 @@ void qede_dump_start_lro_cqe(struct eth_fast_path_rx_tpa_start_cqe *cqe)
 	for (i = 0; i < ETH_TPA_CQE_START_LEN_LIST_SIZE; i++)
 		cmn_err(CE_WARN, "    ext_bd_len_list[%d] = %d", i, LE_16(cqe->ext_bd_len_list[i]));
 	cmn_err(CE_WARN, "    pars_flags = 0x%x", LE_16((uint16_t)cqe->pars_flags.flags));
-	cmn_err(CE_WARN, "    tunnel_pars_flags = 0x%x", cqe->tunnel_pars_flags);
+	cmn_err(CE_WARN, "    tunnel_pars_flags = 0x%x", cqe->tunnel_pars_flags.flags);
 	cmn_err(CE_WARN, "    bitfields = 0x%x", cqe->bitfields );
 }
 
