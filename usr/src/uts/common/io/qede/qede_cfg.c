@@ -90,7 +90,7 @@ static void qede_cfg_get_val(qede_t  * qede,
 void qede_cfg_init(qede_t *qede)
 {
 
-	int option, i;
+	int option;
 
 	qede->checksum = DEFAULT_CKSUM_OFFLOAD;
 	qede->enabled_offloads = QEDE_OFFLOAD_NONE;
