@@ -465,12 +465,12 @@ u32 qede_osal_bar_size(struct ecore_dev *, u8);
  * TODO :Need to examine the ecore code using this Mem./IO
  * barriers and find out whether they are needed on Solaris
  */
-#define	OSAL_MMIOWB()	do {} while (0)
-#define	OSAL_BARRIER()	do {} while (0)
-#define	OSAL_SMP_RMB()	do {} while (0)
-#define	OSAL_SMP_WMB()	do {} while (0)
-#define	OSAL_RMB()	do {} while (0)
-#define	OSAL_WMB()	do {} while (0)
+#define	OSAL_MMIOWB(x)	do {} while (0)
+#define	OSAL_BARRIER(x)	do {} while (0)
+#define	OSAL_SMP_RMB(x)	do {} while (0)
+#define	OSAL_SMP_WMB(x)	do {} while (0)
+#define	OSAL_RMB(x)	do {} while (0)
+#define	OSAL_WMB(x)	do {} while (0)
 
 /*
  * SR-IOV Related OSAL
