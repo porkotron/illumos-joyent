@@ -3052,8 +3052,8 @@ qede_free_attach_resources(qede_t *qede)
 
 	if (qede->attach_resources & QEDE_ECORE_HW_INIT) {
 		if (ecore_hw_stop(edev) != ECORE_SUCCESS) {
-			cmn_err(CE_NOTE, "ecore_hw_stop: failed\n",
-			    qede);
+			cmn_err(CE_NOTE, "%s(%d): ecore_hw_stop: failed\n",
+			    __func__, qede->instance);
 		}
 		qede->attach_resources &= ~QEDE_ECORE_HW_INIT;
 	}
