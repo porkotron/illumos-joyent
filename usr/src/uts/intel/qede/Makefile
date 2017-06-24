@@ -45,6 +45,7 @@ CPPFLAGS	+= -I$(UTSBASE)/common/io/qede/579xx/hsi/mcp
 #
 CERRWARN	+= -_gcc=-Wno-unused-variable
 CERRWARN	+= -_gcc=-Wno-unused-label
+CERRWARN	+= -_gcc=-Wno-unused-function
 
 ALL_TARGET	= $(BINARY) $(CONFMOD)
 LINT_TARGET	= $(MODULE).lint
