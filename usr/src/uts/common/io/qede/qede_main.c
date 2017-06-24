@@ -889,7 +889,7 @@ qede_config_intrs(qede_t *qede)
 	qede_intr_context_t *intr_ctx = &qede->intr_ctx;
 	qede_vector_info_t *vect_info;
 	struct ecore_dev *edev = &qede->edev;
-	int i, status, fp_index = 0;
+	int i, status = DDI_SUCCESS, fp_index = 0;
 	ddi_intr_handler_t *handler;
 	void *arg1, *arg2;
 
@@ -1217,7 +1217,7 @@ qede_vport_stop(qede_t *qede)
 {
 	struct ecore_dev *edev = &qede->edev;
 	struct ecore_hwfn *p_hwfn;
-	int i, status;
+	int i, status; 
 
 	for (i = 0; i < edev->num_hwfns; i++) {
 		p_hwfn = &edev->hwfns[i];
@@ -1243,7 +1243,7 @@ qede_vport_stop(qede_t *qede)
 		    QEDE_VPORT_STOPPED;
 	}
 
-	return (status);
+	return (DDI_SUCCESS);
 }
 
 static uint8_t
@@ -1741,6 +1741,7 @@ qede_free_rx_buffers_legacy(qede_t *qede, qede_rx_buf_area_t *rx_buf_area)
 	if (rx_buf_area) {
 		for (i = 0; i < rx_ring->rx_buf_count; i += bufs_per_page) {
 			free_rx_buffer = B_TRUE;
+			first_rx_buf_in_page = NULL;
 			for (j = 0; j < bufs_per_page; j++) {
 				if (!j)
 					first_rx_buf_in_page = rx_buffer;
@@ -1764,7 +1765,7 @@ qede_free_rx_buffers_legacy(qede_t *qede, qede_rx_buf_area_t *rx_buf_area)
 				rx_buffer++;
 			}
 
-			if (free_rx_buffer == B_TRUE) {
+			if (free_rx_buffer == B_TRUE && first_rx_buf_in_page != NULL) {
 				qede_pci_free_consistent(&first_rx_buf_in_page->dma_info.dma_handle,
 			    	    &first_rx_buf_in_page->dma_info.acc_handle);
 			}
