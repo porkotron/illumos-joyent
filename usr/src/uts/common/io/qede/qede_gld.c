@@ -1476,8 +1476,10 @@ qede_ioctl_rd_wr_nvram(qede_t *qede, mblk_t *mp)
 		break;
 
 	case QEDE_NVRAM_CMD_GET_NVRAM_RESP:
+		buf = kmem_zalloc(size, KM_SLEEP);
 		ret = ecore_mcp_nvm_resp(edev, buf);
 		(void)memcpy(data1->uabc, buf, size);
+		kmem_free(buf, size);
 		break;
 
 	default:
@@ -1540,6 +1542,8 @@ qede_get_func_info(qede_t *qede, void *data)
 
 	if(link.link_up)
 		link_op.speed = link.speed;
+	else
+		link_op.speed = 0;
 
 	link_op.duplex = DUPLEX_FULL;
 	link_op.port = PORT_FIBRE;
