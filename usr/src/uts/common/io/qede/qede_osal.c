@@ -717,8 +717,7 @@ void qede_osal_pci_write_config_word(struct ecore_dev *dev, u32 addr, u16 pcie_i
 
 void * qede_osal_valloc(struct ecore_dev *dev, u32 size)
 {
-	void *ptr;
-	return (ptr);
+	return (NULL);
 }
 
 void qede_osal_vfree(struct ecore_dev *dev, void* mem)
