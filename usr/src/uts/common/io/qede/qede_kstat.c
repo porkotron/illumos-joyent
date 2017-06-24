@@ -271,7 +271,7 @@ static int qede_kstat_update(kstat_t * kstats,
 
 	mutex_enter(&qede->kstat_lock);
 
-	snprintf(buf, sizeof(buf), "%016p", (void *)qede);
+	snprintf(buf, sizeof(buf), "%16p", (void *)qede);
     strncpy(pStats->qede_hi.value.c, &buf[0], 8);
     pStats->qede_hi.value.c[8] = 0;
     strncpy(pStats->qede_lo.value.c, &buf[8], 8);
