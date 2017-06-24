@@ -142,8 +142,13 @@ qede_add_macaddr(qede_t *qede, uint8_t *mac_addr)
 
 }
 
+#ifndef ILLUMOS
 static int
 qede_add_mac_addr(void *arg, const uint8_t *mac_addr, const uint64_t flags)
+#else
+static int
+qede_add_mac_addr(void *arg, const uint8_t *mac_addr)
+#endif
 {
 	qede_mac_group_t *rx_group = (qede_mac_group_t *)arg;
 	qede_t *qede = rx_group->qede;
@@ -242,9 +247,17 @@ qede_tx_ring_stat(mac_ring_driver_t rh, uint_t stat, uint64_t *val)
 	return (ret);
 }
 
+#ifndef ILLUMOS
 static mblk_t *
 qede_rx_ring_poll(void *arg, int poll_bytes, int poll_pkts)
 {
+#else
+static mblk_t *
+qede_rx_ring_poll(void *arg, int poll_bytes)
+{
+	/* XXX pick a value at the moment */
+	int poll_pkts = 100;
+#endif
 	qede_fastpath_t *fp = (qede_fastpath_t *)arg;
 	mblk_t *mp = NULL;
 	int work_done = 0;
@@ -268,8 +281,13 @@ qede_rx_ring_poll(void *arg, int poll_bytes, int poll_pkts)
 	return (mp);
 }
 
+#ifndef ILLUMOS
 static int
 qede_rx_ring_intr_enable(mac_ring_driver_t rh)
+#else
+static int
+qede_rx_ring_intr_enable(mac_intr_handle_t rh)
+#endif
 {
 	qede_fastpath_t *fp = (qede_fastpath_t *)rh;
 
@@ -287,8 +305,13 @@ qede_rx_ring_intr_enable(mac_ring_driver_t rh)
 	return (DDI_SUCCESS);
 }
 
+#ifndef	ILLUMOS
 static int
 qede_rx_ring_intr_disable(mac_ring_driver_t rh)
+#else
+static int
+qede_rx_ring_intr_disable(mac_intr_handle_t rh)
+#endif
 {
 	qede_fastpath_t *fp = (qede_fastpath_t *)rh;
 
@@ -441,6 +464,7 @@ qede_fill_ring(void *arg, mac_ring_type_t rtype, const int group_index,
 		infop->mri_poll = qede_rx_ring_poll;
 		infop->mri_stat = qede_rx_ring_stat;
 
+		mintr->mi_handle = (mac_intr_handle_t)fp;
 		mintr->mi_enable = qede_rx_ring_intr_enable;
 		mintr->mi_disable = qede_rx_ring_intr_disable;
 		if (qede->intr_ctx.intr_type_in_use &
@@ -502,15 +526,19 @@ qede_fill_group(void *arg, mac_ring_type_t rtype, const int index,
 		infop->mgi_driver = (mac_group_driver_t)rx_group;
 		infop->mgi_start = NULL;
 		infop->mgi_stop = NULL;
+#ifndef ILLUMOS
 		infop->mgi_addvlan = NULL;
 		infop->mgi_remvlan = NULL;
 		infop->mgi_getsriov_info = NULL;
 		infop->mgi_setmtu = NULL;
+#endif
 		infop->mgi_addmac = qede_add_mac_addr;
 		infop->mgi_remmac = qede_rem_mac_addr;
 		infop->mgi_count =  qede->num_fp;
+#ifndef ILLUMOS
 		if (index == 0)
 			infop->mgi_flags = MAC_GROUP_DEFAULT;
+#endif
 
 		break;
 	}
@@ -527,15 +555,19 @@ qede_fill_group(void *arg, mac_ring_type_t rtype, const int index,
 		infop->mgi_stop = NULL;
 		infop->mgi_addmac = NULL;
 		infop->mgi_remmac = NULL;
+#ifndef ILLUMOS
 		infop->mgi_addvlan = NULL;
 		infop->mgi_remvlan = NULL;
 		infop->mgi_setmtu = NULL;
 		infop->mgi_getsriov_info = NULL;
+#endif
 
 		infop->mgi_count = qede->num_fp;
 
+#ifndef ILLUMOS
 		if (index == 0)
 			infop->mgi_flags = MAC_GROUP_DEFAULT;
+#endif
 		break;
 	}
 	default:
@@ -1348,7 +1380,7 @@ qede_ioctl_rd_wr_nvram(qede_t *qede, mblk_t *mp)
 				return DDI_FAILURE;
 			}
 			qede->nvm_buf_start = buf;
-			cmn_err(CE_NOTE, "buf = %x, size = %x\n", qede->nvm_buf_start, size);
+			cmn_err(CE_NOTE, "buf = %p, size = %x\n", qede->nvm_buf_start, size);
 			qede->nvm_buf = buf;
 			qede->copy_len = 0;
 			//tmp_buf = buf + addr;
@@ -1369,7 +1401,7 @@ qede_ioctl_rd_wr_nvram(qede_t *qede, mblk_t *mp)
 				tmp_buf = tmp_buf + buf_size;
 				qede->nvm_buf = tmp_buf;
 				//qede->copy_len = qede->copy_len + buf_size;
-				cmn_err(CE_NOTE, "buf_size from app = %x\n");
+				cmn_err(CE_NOTE, "buf_size from app = %x\n", copy_len);
 				ret = 0;
 				break;
 			}
@@ -1867,11 +1899,15 @@ qede_mac_get_capability(void *arg,
 	case MAC_CAPAB_RINGS: {
 #ifndef NO_CROSSBOW
 		mac_capab_rings_t *cap_rings = cap_data;
+#ifndef ILLUMOS
 		cap_rings->mr_version = MAC_RINGS_VERSION_1;
+#endif
 
 		switch (cap_rings->mr_type) {
 		case MAC_RING_TYPE_RX:
+#ifndef ILLUMOS
 			cap_rings->mr_flags = MAC_RINGS_VLAN_TRANSPARENT;
+#endif
 			cap_rings->mr_group_type = MAC_GROUP_TYPE_STATIC;
 			//cap_rings->mr_rnum = 1; /* qede variable */
 			cap_rings->mr_rnum = qede->num_fp; /* qede variable */
@@ -1880,11 +1916,15 @@ qede_mac_get_capability(void *arg,
 			cap_rings->mr_gget = qede_fill_group;
 			cap_rings->mr_gaddring = NULL;
 			cap_rings->mr_gremring = NULL;
+#ifndef	ILLUMOS
 			cap_rings->mr_ggetringtc = NULL;
+#endif
 			ret = B_TRUE;
 			break;
 		case MAC_RING_TYPE_TX:
+#ifndef ILLUMOS
 			cap_rings->mr_flags = MAC_RINGS_VLAN_TRANSPARENT;
+#endif
 			cap_rings->mr_group_type = MAC_GROUP_TYPE_STATIC;
 			//cap_rings->mr_rnum = 1;
 			cap_rings->mr_rnum = qede->num_fp;
@@ -1893,7 +1933,9 @@ qede_mac_get_capability(void *arg,
 			cap_rings->mr_gget = qede_fill_group;
 			cap_rings->mr_gaddring = NULL;
 			cap_rings->mr_gremring = NULL;
+#ifndef	ILLUMOS
 			cap_rings->mr_ggetringtc = NULL;
+#endif
 			ret = B_TRUE;
 			break;
 		default:
@@ -2075,10 +2117,15 @@ qede_mac_get_property(void *        arg,
 
 		ASSERT(pr_valsize >= sizeof(link_flowctrl_t));
 
+/*
+ * illumos does not have the notion of LINK_FLOWCTRL_AUTO at this time.
+ */
+#ifndef	ILLUMOS
 		if(link_cfg.pause_cfg & QEDE_LINK_PAUSE_AUTONEG_ENABLE) 
 		{
 	            link_flowctrl = LINK_FLOWCTRL_AUTO;
 		}
+#endif
 
 		if (!(link_cfg.pause_cfg & QEDE_LINK_PAUSE_RX_ENABLE) && 
 						!(link_cfg.pause_cfg & QEDE_LINK_PAUSE_TX_ENABLE))
