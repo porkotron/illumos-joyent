@@ -29,6 +29,8 @@ include $(UTSBASE)/intel/Makefile.intel
 CPPFLAGS	+= -D__inline=inline
 CPPFLAGS	+= -D_inline=inline
 CPPFLAGS	+= -DILLUMOS
+CPPFLAGS	+= -DECORE_CONFIG_DIRECT_HWFN
+CPPFLAGS	+= -DCONFIG_ECORE_L2
 
 #
 # Includes that are needed
