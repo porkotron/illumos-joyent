@@ -33,7 +33,7 @@ qede_sprintf(char *s, const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	r = vsnprintf(s, SIZE_MAX, fmt, ap);
+	r = vsnprintf(s, SIZE_MAX, fmt, args);
 	va_end(args);
 
 	return (r);
