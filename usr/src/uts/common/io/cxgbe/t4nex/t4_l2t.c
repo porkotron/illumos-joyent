@@ -248,7 +248,9 @@ t4_init_l2t(struct adapter *sc)
 		(void) atomic_swap_uint(&d->l2tab[i].refcnt, 0);
 	}
 
+#ifdef TCP_OFFLOAD_ENABLE
 	(void) t4_register_cpl_handler(sc, CPL_L2T_WRITE_RPL, do_l2t_write_rpl);
+#endif
 
 	return (d);
 }
@@ -266,7 +268,7 @@ t4_free_l2t(struct l2t_data *d)
 	return (0);
 }
 
-#ifndef TCP_OFFLOAD_DISABLE
+#ifdef TCP_OFFLOAD_ENABLE
 static inline void
 l2t_hold(struct l2t_data *d, struct l2t_entry *e)
 {

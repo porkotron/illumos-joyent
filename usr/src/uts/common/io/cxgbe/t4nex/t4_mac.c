@@ -37,7 +37,6 @@ static void t4_mc_stop(void *arg);
 static int t4_mc_setpromisc(void *arg, boolean_t on);
 static int t4_mc_multicst(void *arg, boolean_t add, const uint8_t *mcaddr);
 static int t4_mc_unicst(void *arg, const uint8_t *ucaddr);
-static mblk_t *t4_mc_tx(void *arg, mblk_t *m);
 static boolean_t t4_mc_getcapab(void *arg, mac_capab_t cap, void *data);
 static int t4_mc_setprop(void *arg, const char *name, mac_prop_id_t id,
     uint_t size, const void *val);
@@ -63,8 +62,27 @@ mac_callbacks_t t4_m_callbacks = {
 	.mc_stop	= t4_mc_stop,
 	.mc_setpromisc	= t4_mc_setpromisc,
 	.mc_multicst	= t4_mc_multicst,
-	.mc_unicst	= t4_mc_unicst,
-	.mc_tx		= t4_mc_tx,
+	.mc_unicst =    t4_mc_unicst,
+	.mc_tx =        t4_mc_tx,
+	.mc_getcapab =	t4_mc_getcapab,
+	.mc_setprop =	t4_mc_setprop,
+	.mc_getprop =	t4_mc_getprop,
+	.mc_propinfo =	t4_mc_propinfo,
+};
+
+/* I couldn't comeup with a better idea of not redefine
+ * another strcture and instead somehow reuse the earlier
+ * above structure and modify its members.
+ */
+mac_callbacks_t t4_m_ring_callbacks = {
+	.mc_callbacks =	MC_GETCAPAB | MC_PROPERTIES,
+	.mc_getstat =	t4_mc_getstat,
+	.mc_start =	t4_mc_start,
+	.mc_stop =	t4_mc_stop,
+	.mc_setpromisc =t4_mc_setpromisc,
+	.mc_multicst =	t4_mc_multicst,
+	.mc_unicst =    NULL, /* t4_addmac */
+	.mc_tx =        NULL, /* t4_eth_tx */
 	.mc_getcapab	= t4_mc_getcapab,
 	.mc_setprop	= t4_mc_setprop,
 	.mc_getprop	= t4_mc_getprop,
@@ -416,22 +434,31 @@ t4_mc_multicst(void *arg, boolean_t add, const uint8_t *mcaddr)
 	return (0);
 }
 
-static int
+int
 t4_mc_unicst(void *arg, const uint8_t *ucaddr)
 {
 	struct port_info *pi = arg;
 	struct adapter *sc = pi->adapter;
 	int rc;
 
+	if (ucaddr == NULL)
+		return (EINVAL);
+
 	rc = begin_synchronized_op(pi, 1, 1);
 	if (rc != 0)
 		return (rc);
+
+	/* We will support adding only one mac address */
+	if (pi->adapter->props.multi_rings && pi->macaddr_cnt) {
+		end_synchronized_op(pi, 1);
+		return (ENOSPC);
+	}
 	rc = t4_change_mac(sc, sc->mbox, pi->viid, pi->xact_addr_filt, ucaddr,
-	    true, true);
+			   true, true);
 	if (rc < 0)
 		rc = -rc;
 	else {
-		/* LINTED: E_CONSTANT_CONDITION */
+		pi->macaddr_cnt++;
 		pi->xact_addr_filt = rc;
 		rc = 0;
 	}
@@ -440,14 +467,232 @@ t4_mc_unicst(void *arg, const uint8_t *ucaddr)
 	return (rc);
 }
 
-static mblk_t *
+int
+t4_addmac(void *arg, const uint8_t *ucaddr)
+{
+	return (t4_mc_unicst(arg, ucaddr));
+}
+
+static int
+t4_remmac(void *arg, const uint8_t *mac_addr)
+{
+	struct port_info *pi = arg;
+	int rc;
+
+	rc = begin_synchronized_op(pi, 1, 1);
+	if (rc != 0)
+		return (rc);
+
+	pi->macaddr_cnt--;
+	end_synchronized_op(pi, 1);
+
+	return (0);
+}
+
+/*
+ * Callback funtion for MAC layer to register all groups.
+ */
+void
+t4_fill_group(void *arg, mac_ring_type_t rtype, const int rg_index,
+	      mac_group_info_t *infop, mac_group_handle_t gh)
+{
+	struct port_info *pi = arg;
+
+	switch (rtype) {
+	case MAC_RING_TYPE_RX: {
+		infop->mgi_driver = (mac_group_driver_t)arg;
+		infop->mgi_start = NULL;
+		infop->mgi_stop = NULL;
+		infop->mgi_addmac = t4_addmac;
+		infop->mgi_remmac = t4_remmac;
+		infop->mgi_count = pi->nrxq;
+		break;
+	}
+	case MAC_RING_TYPE_TX:
+	default:
+		ASSERT(0);
+		break;
+	}
+}
+
+static int
+t4_ring_start(mac_ring_driver_t rh, uint64_t mr_gen_num)
+{
+	struct sge_rxq *rxq = (struct sge_rxq *)rh;
+
+	RXQ_LOCK(rxq);
+	rxq->ring_gen_num = mr_gen_num;
+	RXQ_UNLOCK(rxq);
+	return (0);
+}
+
+/*
+ * Enable interrupt on the specificed rx ring.
+ */
+int
+t4_ring_intr_enable(mac_intr_handle_t intrh)
+{
+	struct sge_rxq *rxq = (struct sge_rxq *)intrh;
+	struct adapter *sc = rxq->port->adapter;
+	struct sge_iq *iq;
+
+	iq = &rxq->iq;
+	RXQ_LOCK(rxq);
+	iq->polling = 0;
+	iq->state = IQS_IDLE;
+	t4_write_reg(sc, MYPF_REG(A_SGE_PF_GTS),
+		     V_SEINTARM(iq->intr_params) | V_INGRESSQID(iq->cntxt_id));
+	RXQ_UNLOCK(rxq);
+	return (0);
+}
+
+/*
+ * Disable interrupt on the specificed rx ring.
+ */
+int
+t4_ring_intr_disable(mac_intr_handle_t intrh)
+{
+	struct sge_rxq *rxq = (struct sge_rxq *)intrh;
+	struct adapter *sc = rxq->port->adapter;
+	struct sge_iq *iq;
+
+	/* Nothing to be done here wrt interrupt, as it
+	 * will not fire, until we write back to
+	 * A_SGE_PF_GTS.SEIntArm in t4_ring_intr_enable.
+	 */
+
+	iq = &rxq->iq;
+	RXQ_LOCK(rxq);
+	iq->polling = 1;
+	iq->state = IQS_BUSY;
+	RXQ_UNLOCK(rxq);
+	return (0);
+}
+
+mblk_t *
+t4_poll_ring(void *arg, int n_bytes)
+{
+	struct sge_rxq *rxq = (struct sge_rxq *)arg;
+	mblk_t *mp = NULL;
+
+	ASSERT(n_bytes >= 0);
+	if (n_bytes == 0)
+		return (NULL);
+
+	RXQ_LOCK(rxq);
+	mp = t4_ring_rx(rxq, n_bytes);
+	RXQ_UNLOCK(rxq);
+
+	return (mp);
+}
+
+/*
+ * Retrieve a value for one of the statistics for a particular rx ring
+ */
+int
+t4_rx_stat(mac_ring_driver_t rh, uint_t stat, uint64_t *val)
+{
+	struct sge_rxq *rxq = (struct sge_rxq *)rh;
+
+	switch (stat) {
+	case MAC_STAT_RBYTES:
+		*val = rxq->rxbytes;
+		break;
+
+	case MAC_STAT_IPACKETS:
+		*val = rxq->rxpkts;
+		break;
+
+	default:
+		*val = 0;
+		return (ENOTSUP);
+	}
+
+	return (0);
+}
+
+/*
+ * Retrieve a value for one of the statistics for a particular tx ring
+ */
+int
+t4_tx_stat(mac_ring_driver_t rh, uint_t stat, uint64_t *val)
+{
+	struct sge_txq *txq = (struct sge_txq *)rh;
+
+	switch (stat) {
+	case MAC_STAT_RBYTES:
+		*val = txq->txbytes;
+		break;
+
+	case MAC_STAT_IPACKETS:
+		*val = txq->txpkts;
+		break;
+
+	default:
+		*val = 0;
+		return (ENOTSUP);
+	}
+
+	return (0);
+}
+
+/*
+ * Callback funtion for MAC layer to register all rings
+ * for given ring_group, noted by group_index.
+ * Since we have only one group, ring index becomes
+ * absolute index.
+ */
+void
+t4_fill_ring(void *arg, mac_ring_type_t rtype, const int group_index,
+	     const int ring_index, mac_ring_info_t *infop, mac_ring_handle_t rh)
+{
+	struct port_info *pi = arg;
+	mac_intr_t *mintr;
+
+	switch (rtype) {
+	case MAC_RING_TYPE_RX: {
+		struct sge_rxq *rxq;
+
+		rxq = &pi->adapter->sge.rxq[pi->first_rxq + ring_index];
+		rxq->ring_handle = rh;
+
+		infop->mri_driver = (mac_ring_driver_t)rxq;
+		infop->mri_start = t4_ring_start;
+		infop->mri_stop = NULL;
+		infop->mri_poll = t4_poll_ring;
+		infop->mri_stat = t4_rx_stat;
+
+		mintr = &infop->mri_intr;
+		mintr->mi_handle = (mac_intr_handle_t)rxq;
+		mintr->mi_enable = t4_ring_intr_enable;
+		mintr->mi_disable = t4_ring_intr_disable;
+
+		break;
+	}
+	case MAC_RING_TYPE_TX: {
+		struct sge_txq *txq = &pi->adapter->sge.txq[pi->first_txq + ring_index];
+		txq->ring_handle = rh;
+		infop->mri_driver = (mac_ring_driver_t)txq;
+		infop->mri_start = NULL;
+		infop->mri_stop = NULL;
+		infop->mri_tx = t4_eth_tx;
+		infop->mri_stat = t4_tx_stat;
+		break;
+	}
+	default:
+		ASSERT(0);
+		break;
+	}
+}
+
+mblk_t *
 t4_mc_tx(void *arg, mblk_t *m)
 {
 	struct port_info *pi = arg;
 	struct adapter *sc = pi->adapter;
 	struct sge_txq *txq = &sc->sge.txq[pi->first_txq];
 
-	return (t4_eth_tx(pi, txq, m));
+	return (t4_eth_tx(txq, m));
 }
 
 static boolean_t
@@ -477,6 +722,33 @@ t4_mc_getcapab(void *arg, mac_capab_t cap, void *data)
 			status = B_FALSE;
 		break;
 
+	case MAC_CAPAB_RINGS: {
+		mac_capab_rings_t *cap_rings = data;
+
+		if (!pi->adapter->props.multi_rings) {
+			status = B_FALSE;
+			break;
+		}
+		switch (cap_rings->mr_type) {
+		case MAC_RING_TYPE_RX:
+			cap_rings->mr_group_type = MAC_GROUP_TYPE_STATIC;
+			cap_rings->mr_rnum = pi->nrxq;
+			cap_rings->mr_gnum = 1;
+			cap_rings->mr_rget = t4_fill_ring;
+			cap_rings->mr_gget = t4_fill_group;
+			cap_rings->mr_gaddring = NULL;
+			cap_rings->mr_gremring = NULL;
+			break;
+		case MAC_RING_TYPE_TX:
+			cap_rings->mr_group_type = MAC_GROUP_TYPE_STATIC;
+			cap_rings->mr_rnum = pi->ntxq;
+			cap_rings->mr_gnum = 0;
+			cap_rings->mr_rget = t4_fill_ring;
+			cap_rings->mr_gget = NULL;
+			break;
+		}
+		break;
+	}
 	default:
 		status = B_FALSE; /* cap not supported */
 	}
@@ -499,7 +771,7 @@ t4_mc_setprop(void *arg, const char *name, mac_prop_id_t id, uint_t size,
 
 	/*
 	 * Save a copy of link_config. This can be used to restore link_config
-	 * if t4_link_start() fails.
+	 * if t4_link_l1cfg() fails.
 	 */
 	bcopy(lc, &lc_copy, sizeof (struct link_config));
 
@@ -620,7 +892,7 @@ t4_mc_setprop(void *arg, const char *name, mac_prop_id_t id, uint_t size,
 			rc = begin_synchronized_op(pi, 1, 1);
 			if (rc != 0)
 				return (rc);
-			rc = -t4_link_start(sc, sc->mbox, pi->tx_chan,
+			rc = -t4_link_l1cfg(sc, sc->mbox, pi->tx_chan,
 			    &pi->link_cfg);
 			end_synchronized_op(pi, 1);
 			if (rc != 0) {
@@ -876,7 +1148,7 @@ t4_init_synchronized(struct port_info *pi)
 		/* LINTED: E_ASSIGN_NARROW_CONV */
 		pi->xact_addr_filt = rc;
 
-	rc = -t4_link_start(sc, sc->mbox, pi->tx_chan, &pi->link_cfg);
+	rc = -t4_link_l1cfg(sc, sc->mbox, pi->tx_chan, &pi->link_cfg);
 	if (rc != 0) {
 		cxgb_printf(pi->dip, CE_WARN, "start_link failed: %d", rc);
 		goto done;
@@ -1004,7 +1276,7 @@ setprop(struct port_info *pi, const char *name, const void *val)
 
 	/*
 	 * Save a copy of link_config. This can be used to restore link_config
-	 * if t4_link_start() fails.
+	 * if t4_link_l1cfg() fails.
 	 */
 	bcopy(lc, &lc_old, sizeof (struct link_config));
 
@@ -1098,7 +1370,7 @@ setprop(struct port_info *pi, const char *name, const void *val)
 			rc = begin_synchronized_op(pi, 1, 1);
 			if (rc != 0)
 				return (rc);
-			rc = -t4_link_start(sc, sc->mbox, pi->tx_chan, lc);
+			rc = -t4_link_l1cfg(sc, sc->mbox, pi->tx_chan, lc);
 			end_synchronized_op(pi, 1);
 			if (rc != 0) {
 				cxgb_printf(pi->dip, CE_WARN,
@@ -1127,8 +1399,16 @@ setprop(struct port_info *pi, const char *name, const void *val)
 void
 t4_mc_init(struct port_info *pi)
 {
-	pi->mc = &t4_m_callbacks;
 	pi->props = t4_priv_props;
+}
+
+void
+t4_mc_cb_init(struct port_info *pi)
+{
+	if (pi->adapter->props.multi_rings)
+		pi->mc = &t4_m_ring_callbacks;
+	else
+		pi->mc = &t4_m_callbacks;
 }
 
 void
@@ -1144,4 +1424,13 @@ void
 t4_mac_rx(struct port_info *pi, struct sge_rxq *rxq, mblk_t *m)
 {
 	mac_rx(pi->mh, NULL, m);
+}
+
+void
+t4_mac_tx_update(struct port_info *pi, struct sge_txq *txq)
+{
+	if (pi->adapter->props.multi_rings)
+		mac_tx_ring_update(pi->mh, txq->ring_handle);
+	else
+		mac_tx_update(pi->mh);
 }
