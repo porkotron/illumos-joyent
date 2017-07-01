@@ -702,9 +702,9 @@ t4_devo_attach(dev_info_t *dip, ddi_attach_cmd_t cmd)
 		for_each_port(sc, i) {
 			struct port_info *pi = sc->port[i];
 			struct sge_rxq *rxq;
+#ifdef TCP_OFFLOAD_ENABLE
 			struct sge_ofld_rxq *ofld_rxq;
 
-#ifdef TCP_OFFLOAD_ENABLE
 			/*
 			 * Skip over the NIC queues if they aren't taking direct
 			 * interrupts.

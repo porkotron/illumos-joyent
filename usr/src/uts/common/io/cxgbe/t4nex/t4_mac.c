@@ -553,7 +553,6 @@ int
 t4_ring_intr_disable(mac_intr_handle_t intrh)
 {
 	struct sge_rxq *rxq = (struct sge_rxq *)intrh;
-	struct adapter *sc = rxq->port->adapter;
 	struct sge_iq *iq;
 
 	/* Nothing to be done here wrt interrupt, as it

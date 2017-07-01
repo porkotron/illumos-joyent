@@ -345,7 +345,9 @@ void t4_record_mbox_marker(struct adapter *adapter,
 int t4_wr_mbox_meat_timeout(struct adapter *adap, int mbox, const void *cmd,
 			    int size, void *rpl, bool sleep_ok, int timeout)
 {
+#ifdef T4_OS_NEEDS_MBOX_LOCKING
 	u16 access = 0;
+#endif
 	u16 execute = 0;
 	u32 v;
 	u64 res;

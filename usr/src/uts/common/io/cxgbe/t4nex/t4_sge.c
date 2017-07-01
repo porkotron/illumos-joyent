@@ -185,7 +185,7 @@ t4_sge_init(struct adapter *sc)
 	ddi_dma_attr_t *dma_attr;
 	ddi_device_acc_attr_t *acc_attr;
 	uint32_t sge_control, sge_conm_ctrl;
-	int ret, egress_threshold;
+	int egress_threshold;
 
 	/*
 	 * Device access and DMA attributes for descriptor rings
@@ -455,10 +455,11 @@ port_intr_iq(struct port_info *pi, int idx)
 int
 t4_setup_port_queues(struct port_info *pi)
 {
-	int rc = 0, i, intr_idx, j, iqid;
+	int rc = 0, i, intr_idx, j;
 	struct sge_rxq *rxq;
 	struct sge_txq *txq;
 #ifdef TCP_OFFLOAD_ENABLE
+	int iqid;
 	struct sge_wrq *ctrlq;
 	struct sge_ofld_rxq *ofld_rxq;
 	struct sge_wrq *ofld_txq;
@@ -601,8 +602,8 @@ t4_teardown_port_queues(struct port_info *pi)
 	int i;
 	struct sge_rxq *rxq;
 	struct sge_txq *txq;
-	struct adapter *sc = pi->adapter;
 #ifdef TCP_OFFLOAD_ENABLE
+	struct adapter *sc = pi->adapter;
 	struct sge_ofld_rxq *ofld_rxq;
 	struct sge_wrq *ofld_txq;
 #endif
@@ -694,7 +695,6 @@ t4_intr(caddr_t arg1, caddr_t arg2)
 {
 	/* LINTED: E_BAD_PTR_CAST_ALIGN */
 	struct sge_iq *iq = (struct sge_iq *)arg2;
-	struct sge_rxq *rxq = iq_to_rxq(iq);
 	int state;
 
 	/* Right now receive polling is only enabled for MSI-X and
@@ -738,12 +738,12 @@ t4_intr_err(caddr_t arg1, caddr_t arg2)
 mblk_t *
 t4_ring_rx(struct sge_rxq *rxq, int budget)
 {
-	struct sge_iq *q, *iq = &rxq->iq;
+	struct sge_iq *iq = &rxq->iq;
 	struct sge_fl *fl = &rxq->fl;           /* Use iff IQ_HAS_FL */
 	struct adapter *sc = iq->adapter;
 	struct rsp_ctrl *ctrl;
 	const struct rss_header *rss;
-	int ndescs = 0, limit, fl_bufs_used = 0;
+	int ndescs = 0, fl_bufs_used = 0;
 	int rsp_type;
 	uint32_t lq;
 	mblk_t *mblk_head = NULL, **mblk_tail, *m;
