@@ -1932,7 +1932,7 @@ qede_mac_get_capability(void *arg,
 			cap_rings->mr_group_type = MAC_GROUP_TYPE_STATIC;
 			//cap_rings->mr_rnum = 1;
 			cap_rings->mr_rnum = qede->num_fp;
-			cap_rings->mr_gnum = 1;
+			cap_rings->mr_gnum = 0;
 			cap_rings->mr_rget = qede_fill_ring;
 			cap_rings->mr_gget = qede_fill_group;
 			cap_rings->mr_gaddring = NULL;
@@ -2286,6 +2286,9 @@ qede_gld_init(qede_t * qede)
 	macp->m_min_sdu = 0;
 	macp->m_max_sdu = qede->mtu;
 	macp->m_margin = VLAN_TAGSZ;
+#ifdef	ILLUMOS
+	macp->m_v12n = MAC_VIRT_LEVEL1;
+#endif
 
 	status = mac_register(macp, &qede->mac_handle);
 	if (status != 0)
