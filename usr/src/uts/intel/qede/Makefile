@@ -55,6 +55,12 @@ INSTALL_TARGET	= $(BINARY) $(ROOTMODULE) $(ROOT_CONFFILE)
 
 LDFLAGS		+= -dy -N misc/mac
 
+#
+# We only support the 64-bit version of this driver.
+#
+DEF_BUILDS	= $(DEF_BUILDSONLY64)
+ALL_BUILDS	= $(ALL_BUILDSONLY64)
+
 .KEEP_STATE:
 
 def:		$(DEF_DEPS)
