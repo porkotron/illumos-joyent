@@ -2163,8 +2163,19 @@ cfg_itype_and_nqueues(struct adapter *sc, int n10g, int n1g,
 #endif
 			}
 
+			/* We have arrived at a minimum value required to enable
+			 * per queue irq(either NIC or offload). Thus for non-
+			 * offload case, we will get a vector per queue, while
+			 * offload case, we will get a vector per offload/NIC q.
+			 * Hence enable Interrupt forwarding only for offload
+			 * case.
+			 */
+#ifdef TCP_OFFLOAD_ENABLE
 			if (itype != DDI_INTR_TYPE_MSI || ISP2(iaq->nirq)) {
 				iaq->intr_fwd = 1;
+#else
+			if (itype != DDI_INTR_TYPE_MSI) {
+#endif
 				goto allocate;
 			}
 		}
