@@ -229,6 +229,22 @@ t4_mc_getstat(void *arg, uint_t stat, uint64_t *val)
 	case ETHER_STAT_XCVR_INUSE:
 		return (ENOTSUP);
 
+	case ETHER_STAT_CAP_100GFDX:
+		*val = !!(lc->supported & FW_PORT_CAP_SPEED_100G);
+		break;
+
+	case ETHER_STAT_CAP_40GFDX:
+		*val = !!(lc->supported & FW_PORT_CAP_SPEED_40G);
+		break;
+
+	case ETHER_STAT_CAP_25GFDX:
+		*val = !!(lc->supported & FW_PORT_CAP_SPEED_25G);
+		break;
+
+	case ETHER_STAT_CAP_10GFDX:
+		*val = !!(lc->supported & FW_PORT_CAP_SPEED_10G);
+		break;
+
 	case ETHER_STAT_CAP_1000FDX:
 		*val = !!(lc->supported & FW_PORT_CAP_SPEED_1G);
 		break;
@@ -292,16 +308,62 @@ t4_mc_getstat(void *arg, uint_t stat, uint64_t *val)
 		*val = (lc->requested_fc & PAUSE_TX) ? 1 : 0;
 		break;
 
+	case ETHER_STAT_ADV_CAP_100GFDX:
+		*val = !!(lc->advertising & FW_PORT_CAP_SPEED_100G);
+		break;
+
+	case ETHER_STAT_ADV_CAP_40GFDX:
+		*val = !!(lc->advertising & FW_PORT_CAP_SPEED_40G);
+		break;
+
+	case ETHER_STAT_ADV_CAP_25GFDX:
+		*val = !!(lc->advertising & FW_PORT_CAP_SPEED_25G);
+		break;
+
+	case ETHER_STAT_ADV_CAP_10GFDX:
+		*val = !!(lc->advertising & FW_PORT_CAP_SPEED_10G);
+		break;
+
 	case ETHER_STAT_ADV_CAP_1000FDX:
+		*val = !!(lc->advertising & FW_PORT_CAP_SPEED_1G);
+		break;
+
+	case ETHER_STAT_ADV_CAP_AUTONEG:
+		*val = !!(lc->advertising & FW_PORT_CAP_ANEG);
+		break;
+
 	case ETHER_STAT_ADV_CAP_1000HDX:
 	case ETHER_STAT_ADV_CAP_100FDX:
 	case ETHER_STAT_ADV_CAP_100HDX:
 	case ETHER_STAT_ADV_CAP_10FDX:
 	case ETHER_STAT_ADV_CAP_10HDX:
-	case ETHER_STAT_ADV_CAP_AUTONEG:
 		return (ENOTSUP);	/* TODO */
 
+
+	case ETHER_STAT_LP_CAP_100GFDX:
+		*val = !!(lc->lp_advertising & FW_PORT_CAP_SPEED_100G);
+		break;
+
+	case ETHER_STAT_LP_CAP_40GFDX:
+		*val = !!(lc->lp_advertising & FW_PORT_CAP_SPEED_40G);
+		break;
+
+	case ETHER_STAT_LP_CAP_25GFDX:
+		*val = !!(lc->lp_advertising & FW_PORT_CAP_SPEED_25G);
+		break;
+
+	case ETHER_STAT_LP_CAP_10GFDX:
+		*val = !!(lc->lp_advertising & FW_PORT_CAP_SPEED_10G);
+		break;
+
 	case ETHER_STAT_LP_CAP_1000FDX:
+		*val = !!(lc->lp_advertising & FW_PORT_CAP_SPEED_1G);
+		break;
+
+	case ETHER_STAT_LP_CAP_AUTONEG:
+		*val = !!(lc->lp_advertising & FW_PORT_CAP_ANEG);
+		break;
+
 	case ETHER_STAT_LP_CAP_1000HDX:
 	case ETHER_STAT_LP_CAP_100FDX:
 	case ETHER_STAT_LP_CAP_100HDX:
@@ -309,7 +371,6 @@ t4_mc_getstat(void *arg, uint_t stat, uint64_t *val)
 	case ETHER_STAT_LP_CAP_10HDX:
 	case ETHER_STAT_LP_CAP_ASMPAUSE:
 	case ETHER_STAT_LP_CAP_PAUSE:
-	case ETHER_STAT_LP_CAP_AUTONEG:
 		return (ENOTSUP);
 
 	case ETHER_STAT_LINK_ASMPAUSE:
@@ -966,6 +1027,21 @@ t4_mc_getprop(void *arg, const char *name, mac_prop_id_t id, uint_t size,
 			*(link_flowctrl_t *)val = LINK_FLOWCTRL_RX;
 		else
 			*(link_flowctrl_t *)val = LINK_FLOWCTRL_NONE;
+		break;
+
+	case MAC_PROP_ADV_100GFDX_CAP:
+	case MAC_PROP_EN_100GFDX_CAP:
+		*u = !!(lc->advertising & FW_PORT_CAP_SPEED_100G);
+		break;
+
+	case MAC_PROP_ADV_40GFDX_CAP:
+	case MAC_PROP_EN_40GFDX_CAP:
+		*u = !!(lc->advertising & FW_PORT_CAP_SPEED_40G);
+		break;
+
+	case MAC_PROP_ADV_25GFDX_CAP:
+	case MAC_PROP_EN_25GFDX_CAP:
+		*u = !!(lc->advertising & FW_PORT_CAP_SPEED_25G);
 		break;
 
 	case MAC_PROP_ADV_10GFDX_CAP:
