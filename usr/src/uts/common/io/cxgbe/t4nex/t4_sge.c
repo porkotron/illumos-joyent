@@ -319,7 +319,7 @@ t4_sge_init(struct adapter *sc)
 
 	(void) t4_register_cpl_handler(sc, CPL_FW4_MSG, handle_fw_rpl);
 	(void) t4_register_cpl_handler(sc, CPL_FW6_MSG, handle_fw_rpl);
-	t4_register_cpl_handler(sc, CPL_SGE_EGR_UPDATE, handle_sge_egr_update);
+	(void) t4_register_cpl_handler(sc, CPL_SGE_EGR_UPDATE, handle_sge_egr_update);
 	(void) t4_register_cpl_handler(sc, CPL_RX_PKT, t4_eth_rx);
 	(void) t4_register_fw_msg_handler(sc, FW6_TYPE_CMD_RPL,
 		    t4_handle_fw_rpl);
@@ -705,8 +705,8 @@ t4_intr(caddr_t arg1, caddr_t arg2)
 	} else {
 		state = atomic_cas_uint(&iq->state, IQS_IDLE, IQS_BUSY);
 		if (state == IQS_IDLE) {
-			service_iq(iq, 0);
-			atomic_cas_uint(&iq->state, IQS_BUSY, IQS_IDLE);
+			(void) service_iq(iq, 0);
+			(void) atomic_cas_uint(&iq->state, IQS_BUSY, IQS_IDLE);
 		}
 	}
 	return (DDI_INTR_CLAIMED);

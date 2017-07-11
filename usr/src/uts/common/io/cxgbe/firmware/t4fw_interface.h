@@ -2007,7 +2007,7 @@ enum fw_ri_init_p2ptype {
 };
 
 enum fw_ri_init_rqeqid_srq {
-	FW_RI_INIT_RQEQID_SRQ			= 1 << 31,
+	FW_RI_INIT_RQEQID_SRQ			= 1U << 31,
 };
 
 struct fw_ri_wr {

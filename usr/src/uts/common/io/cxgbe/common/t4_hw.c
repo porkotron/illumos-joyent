@@ -474,7 +474,7 @@ int t4_wr_mbox_meat_timeout(struct adapter *adap, int mbox, const void *cmd,
 	CH_DUMP_MBOX(adap, mbox, data_reg, size / 8);
 
 	t4_write_reg(adap, ctl_reg, F_MBMSGVALID | V_MBOWNER(X_MBOWNER_FW));
-	t4_read_reg(adap, ctl_reg);	/* flush write */
+	(void) t4_read_reg(adap, ctl_reg);	/* flush write */
 
 	/*
 	 * Loop waiting for the reply; bail out if we time out or the firmware
@@ -6094,7 +6094,7 @@ void t4_read_mtu_tbl(struct adapter *adap, u16 *mtus, u8 *mtu_log)
 
 	for (i = 0; i < NMTUS; ++i) {
 		t4_write_reg(adap, A_TP_MTU_TABLE,
-			     V_MTUINDEX(0xff) | V_MTUVALUE(i));
+			     V_MTUINDEX(0xffU) | V_MTUVALUE(i));
 		v = t4_read_reg(adap, A_TP_MTU_TABLE);
 		mtus[i] = G_MTUVALUE(v);
 		if (mtu_log)
@@ -6117,7 +6117,7 @@ void t4_read_cong_tbl(struct adapter *adap, u16 incr[NMTUS][NCCTRL_WIN])
 	for (mtu = 0; mtu < NMTUS; ++mtu)
 		for (w = 0; w < NCCTRL_WIN; ++w) {
 			t4_write_reg(adap, A_TP_CCTRL_TABLE,
-				     V_ROWINDEX(0xffff) | (mtu << 5) | w);
+				     V_ROWINDEX(0xffffU) | (mtu << 5) | w);
 			incr[mtu][w] = (u16)t4_read_reg(adap,
 						A_TP_CCTRL_TABLE) & 0x1fff;
 		}
@@ -7951,10 +7951,13 @@ int t4_alloc_vi_func(struct adapter *adap, unsigned int mbox,
 		switch (nmac) {
 		case 5:
 			memcpy(mac + 24, c.nmac3, sizeof(c.nmac3));
+			/* FALLTHRU */
 		case 4:
 			memcpy(mac + 18, c.nmac2, sizeof(c.nmac2));
+			/* FALLTHRU */
 		case 3:
 			memcpy(mac + 12, c.nmac1, sizeof(c.nmac1));
+			/* FALLTHRU */
 		case 2:
 			memcpy(mac + 6,  c.nmac0, sizeof(c.nmac0));
 		}

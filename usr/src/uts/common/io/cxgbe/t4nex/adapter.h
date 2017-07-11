@@ -792,7 +792,7 @@ static inline int t4_os_pci_read_seeprom(adapter_t *adapter,
 					 int addr, u32 *valp)
 {
 	int t4_seeprom_read(struct adapter *adapter, u32 addr, u32 *data);
-	ssize_t ret;
+	int ret;
 
 	ret = t4_seeprom_read(adapter, addr, valp);
 
@@ -813,7 +813,7 @@ static inline int t4_os_pci_write_seeprom(adapter_t *adapter,
 					  int addr, u32 val)
 {
 	int t4_seeprom_write(struct adapter *adapter, u32 addr, u32 data);
-	ssize_t ret;
+	int ret;
 
 	ret = t4_seeprom_write(adapter, addr, val);
 

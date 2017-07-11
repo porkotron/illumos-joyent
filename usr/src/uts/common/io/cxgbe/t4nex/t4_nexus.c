@@ -1530,7 +1530,7 @@ adap__pre_init_tweaks(struct adapter *sc)
 	 * Line Size, etc.  The firmware default is for a 4KB Page Size and
 	 * 64B Cache Line Size ...
 	 */
-	t4_fixup_host_params_compat(sc, PAGE_SIZE, CACHE_LINE, T5_LAST_REV);
+	(void) t4_fixup_host_params_compat(sc, PAGE_SIZE, CACHE_LINE, T5_LAST_REV);
 
 	t4_set_reg_field(sc, A_SGE_CONTROL,
 			 V_PKTSHIFT(M_PKTSHIFT), V_PKTSHIFT(rx_dma_offset));
@@ -2016,7 +2016,7 @@ init_driver_props(struct adapter *sc, struct driver_properties *p)
 		p->multi_rings = 1;
 	}
 
-	ddi_prop_update_int(dev, dip, "multi-rings", p->multi_rings);
+	(void) ddi_prop_update_int(dev, dip, "multi-rings", p->multi_rings);
 
 	return (0);
 }
