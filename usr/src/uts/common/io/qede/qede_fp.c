@@ -1079,7 +1079,7 @@ qede_tx_mapped(qede_tx_ring_t *tx_ring, mblk_t *mp, qede_tx_pktinfo_t *pktinfo)
 		 * reserve an handle from the driver dma
 		 * handles list
 		 */
-#ifdef	DBLK_DMA_PREMAP 
+#ifdef	DBLK_DMA_PREMAP
 		if (bp->b_datap->db_flags & DBLK_DMA_PREMAP) {
 #ifdef	DEBUG_PREMAP
 			qede_info(tx_ring->qede, "mp is premapped");
@@ -1451,7 +1451,7 @@ do_pullup:
 		    __func__, qede->instance);
 #endif
 
-#ifdef	DBLK_IS_PREMAPPED
+#ifdef	DBLK_DMA_PREMAP	
 	if (DBLK_IS_PREMAPPED(mp->b_datap) ||
 	    pktinfo.total_len > qede->tx_bcopy_threshold)
 		xmit_mode = USE_DMA_BIND;
