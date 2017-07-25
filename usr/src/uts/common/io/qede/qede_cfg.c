@@ -104,8 +104,12 @@ void qede_cfg_init(qede_t *qede)
 	qede->lso_enable = B_TRUE;
 	qede->lro_enable = B_TRUE;
 	qede->log_enable = B_TRUE;
+#if 0
 	qede->ecore_debug_level = DEFAULT_ECORE_DEBUG_LEVEL;
 	qede->ecore_debug_module = DEFAULT_ECORE_DEBUG_MODULE;
+#endif
+	qede->ecore_debug_level = 0;
+	qede->ecore_debug_module = 0;
 
 	qede_cfg_get_val(qede, "checksum", 
 			  &qede->checksum,

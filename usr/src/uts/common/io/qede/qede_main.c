@@ -430,8 +430,8 @@ void qede_config_debug(qede_t * qede)
 {
 
 	struct ecore_dev *edev = &qede->edev;
-	u32 dp_level = 0;
-	u8 dp_module = 0;
+	u8 dp_level = 0;
+	u32 dp_module = 0;
 
 	dp_level = qede->ecore_debug_level;
 	dp_module = qede->ecore_debug_module;

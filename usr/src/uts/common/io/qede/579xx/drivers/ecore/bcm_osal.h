@@ -515,7 +515,7 @@ enum _ecore_status_t qede_osal_iov_vf_acquire(struct ecore_hwfn *p_hwfn, int vf_
 /*
  * Miscellaneous OSAL
  */
-#define	OSAL_ASSERT(is_assert)		ASSERT(is_assert)
+#define	OSAL_ASSERT(is_assert)	
 
 void qede_print(char *format, ...);
 #define OSAL_WARN(is_warn, _fmt, ...) \
