@@ -189,7 +189,7 @@ extern "C" {
 /*
  * default and boundary sizes for segkp
  */
-#define	SEGKPDEFSIZE	(2L * 1024L * 1024L * 1024L)		/*   2G */
+#define	SEGKPDEFSIZE	(8L * 1024L * 1024L * 1024L)		/*   8G */
 #define	SEGKPMAXSIZE	(8L * 1024L * 1024L * 1024L)		/*   8G */
 #define	SEGKPMINSIZE	(200L * 1024 * 1024L)			/* 200M */
 
