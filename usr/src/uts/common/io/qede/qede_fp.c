@@ -1400,6 +1400,16 @@ qede_send_tx_packet(qede_t *qede, qede_tx_ring_t *tx_ring, mblk_t *mp)
 	qede_get_pkt_offload_info(qede, mp, &pktinfo.cksum_flags,
 	    &pktinfo.use_lso, &pktinfo.mss);
 
+        if ((!pktinfo.use_lso) &&
+                        (pktinfo.total_len > (qede->mtu + QEDE_MAX_ETHER_HDR))) {
+#ifdef  DEBUG_PULLUP
+                qede_info(tx_ring->qede, "Packet drop as packet len 0x%x > 0x%x",
+                                pktinfo.total_len, (qede->mtu + QEDE_MAX_ETHER_HDR));
+#endif
+                status = XMIT_FAILED;
+                goto exit;
+        }
+
 do_pullup:
 	if (force_pullup) {
 		tx_ring->tx_pullup_count++;
