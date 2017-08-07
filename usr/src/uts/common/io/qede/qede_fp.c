@@ -849,7 +849,7 @@ qede_pkt_parse_lso_headers(qede_tx_pktinfo_t *pktinfo, mblk_t *mp)
 	pktinfo->l4_hlen = TCP_HDR_LENGTH(tcp_hdr);
 
 	
-	pktinfo->total_hlen +=
+	pktinfo->total_hlen =
 	    pktinfo->mac_hlen +
 	    pktinfo->ip_hlen +
 	    pktinfo->l4_hlen;
